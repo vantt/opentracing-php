@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace OpenTracing;
 
@@ -8,8 +8,7 @@ use OpenTracing\UnsupportedFormatException;
 use OpenTracing\InvalidSpanOptionException;
 use OpenTracing\InvalidReferencesSetException;
 
-interface Tracer
-{
+interface Tracer {
     /**
      * Returns the current {@link ScopeManager}, which may be a noop but may not be null.
      *
@@ -45,10 +44,10 @@ interface Tracer
      *     // $span->finish() is not called as part of Scope deactivation as
      *     // finish_span_on_close is false
      *
-     * @param string $operationName
+     * @param string                 $operationName
      * @param array|StartSpanOptions $options Same as for startSpan() with
-     *     additional option of `finish_span_on_close` that enables finishing
-     *     of span whenever a scope is closed. It is true by default.
+     *                                        additional option of `finish_span_on_close` that enables finishing
+     *                                        of span whenever a scope is closed. It is true by default.
      *
      * @return Scope A Scope that holds newly created Span and is activated on
      *               a ScopeManager.
@@ -69,7 +68,7 @@ interface Tracer
      *         'child_of' => $parentSpan,
      *     ]);
      *
-     * @param string $operationName
+     * @param string                 $operationName
      * @param array|StartSpanOptions $options See StartSpanOptions for
      *                                        available options.
      *
@@ -83,8 +82,9 @@ interface Tracer
 
     /**
      * @param SpanContext $spanContext
-     * @param string $format
-     * @param mixed $carrier
+     * @param string      $format
+     * @param mixed       $carrier
+     *
      * @return void
      *
      * @throws UnsupportedFormatException when the format is not recognized by the tracer
@@ -95,7 +95,8 @@ interface Tracer
 
     /**
      * @param string $format
-     * @param mixed $carrier
+     * @param mixed  $carrier
+     *
      * @return SpanContext|null
      *
      * @throws UnsupportedFormatException when the format is not recognized by the tracer
@@ -116,4 +117,36 @@ interface Tracer
      * to the client.
      */
     public function flush(): void;
+
+    /**
+     * Return a new SpanBuilder for a Span with the given `operationName`.
+     *
+     * <p>You can override the operationName later via {@link Span#setOperationName(String)}.
+     *
+     * <p>A contrived example:
+     * <pre><code>
+     *   Tracer tracer = ...
+     *
+     *   // Note: if there is a `tracer.activeSpan()` instance, it will be used as the target
+     *   // of an implicit CHILD_OF Reference when `start()` is invoked,
+     *   // unless another Span reference is explicitly provided to the builder.
+     *   Span Sspan = $tracer.buildSpan("HandleHTTPRequest")
+     *                     .asChildOf(rpcSpanContext)  // an explicit parent
+     *                     .withTag("user_agent", req.UserAgent)
+     *                     .withTag("lucky_number", 42)
+     *                     .start();
+     *
+     *  Scope $scope = $tracer.buildSpan("HandleHTTPRequest")
+     *                     .asChildOf(rpcSpanContext)  // an explicit parent
+     *                     .withTag("user_agent", req.UserAgent)
+     *                     .withTag("lucky_number", 42)
+     *                     .startActive();
+     *
+     * </code></pre>
+     *
+     * @param string $operationName
+     *
+     * @return SpanBuilderInterface
+     */
+    public function buildSpan(string $operationName): SpanBuilderInterface;
 }
