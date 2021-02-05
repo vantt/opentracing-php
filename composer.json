@@ -11,7 +11,7 @@
     }
   ],
   "replace": {
-    "opentracing/opentracing": "~1.0.1"
+    "opentracing/opentracing": "~1.0.0-beta2"
   },
   "require": {
     "php": "^7.1 || ^8.0"
