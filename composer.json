@@ -1,13 +1,13 @@
 {
-  "name": "opentracing/opentracing",
+  "name": "vantt/opentracing-php",
   "type": "library",
   "description": "OpenTracing API for PHP",
   "license": "Apache-2.0",
   "minimum-stability": "stable",
   "authors": [
     {
-      "name": "José Carlos Chávez",
-      "email": "jcchavezs@gmail.com"
+      "name": "Tran Toan Van",
+      "email": "trantoanvan@gmail.com"
     }
   ],
   "require": {
