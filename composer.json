@@ -10,6 +10,9 @@
       "email": "trantoanvan@gmail.com"
     }
   ],
+  "replace": {
+    "opentracing/opentracing": "~1.0.1"
+  },
   "require": {
     "php": "^7.1 || ^8.0"
   },
