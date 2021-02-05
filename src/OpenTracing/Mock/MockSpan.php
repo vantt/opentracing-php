@@ -1,14 +1,13 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace OpenTracing\Mock;
 
 use OpenTracing\Span;
 use OpenTracing\SpanContext;
 
-final class MockSpan implements Span
-{
+final class MockSpan implements Span {
     /**
      * @var string
      */
@@ -39,21 +38,16 @@ final class MockSpan implements Span
      */
     private $duration;
 
-    public function __construct(
-        string $operationName,
-        SpanContext $context,
-        ?int $startTime = null
-    ) {
+    public function __construct(string $operationName, SpanContext $context, ?int $startTime = null) {
         $this->operationName = $operationName;
-        $this->context = $context;
-        $this->startTime = $startTime ?: time();
+        $this->context       = $context;
+        $this->startTime     = $startTime ?: time();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getOperationName(): string
-    {
+    public function getOperationName(): string {
         return $this->operationName;
     }
 
@@ -61,85 +55,73 @@ final class MockSpan implements Span
      * {@inheritdoc}
      * @return SpanContext|MockSpanContext
      */
-    public function getContext(): SpanContext
-    {
+    public function getContext(): SpanContext {
         return $this->context;
     }
 
-    public function getStartTime(): ?int
-    {
+    public function getStartTime(): ?int {
         return $this->startTime;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function finish($finishTime = null): void
-    {
-        $finishTime = ($finishTime ?: time());
+    public function finish($finishTime = null): void {
+        $finishTime     = ($finishTime ?: time());
         $this->duration = $finishTime - $this->startTime;
     }
 
-    public function isFinished(): bool
-    {
+    public function isFinished(): bool {
         return $this->duration !== null;
     }
 
-    public function getDuration(): ?int
-    {
+    public function getDuration(): ?int {
         return $this->duration;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function overwriteOperationName(string $newOperationName): void
-    {
+    public function overwriteOperationName(string $newOperationName): void {
         $this->operationName = (string)$newOperationName;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setTag(string $key, $value): void
-    {
+    public function setTag(string $key, $value): void {
         $this->tags[$key] = $value;
     }
 
-    public function getTags(): array
-    {
+    public function getTags(): array {
         return $this->tags;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function log(array $fields = [], $timestamp = null): void
-    {
+    public function log(array $fields = [], $timestamp = null): void {
         $this->logs[] = [
-            'timestamp' => $timestamp ?: time(),
-            'fields' => $fields,
+          'timestamp' => $timestamp ?: time(),
+          'fields'    => $fields,
         ];
     }
 
-    public function getLogs(): array
-    {
+    public function getLogs(): array {
         return $this->logs;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function addBaggageItem(string $key, string $value): void
-    {
+    public function addBaggageItem(string $key, string $value): void {
         $this->context = $this->context->withBaggageItem($key, $value);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getBaggageItem(string $key): ?string
-    {
+    public function getBaggageItem(string $key): ?string {
         return $this->context->getBaggageItem($key);
     }
 }
