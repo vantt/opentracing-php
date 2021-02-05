@@ -9,6 +9,8 @@
 
 PHP library for the OpenTracing's API.
 
+This library extends the original *Tracer* Interface to add new method:  `builSpan(string $operationName): SpanBuildInterface`  
+
 ## Required Reading
 
 In order to understand the library, one must first be familiar with the
@@ -20,15 +22,10 @@ In order to understand the library, one must first be familiar with the
 OpenTracing-PHP can be installed via Composer:
 
 ```bash
-composer require opentracing/opentracing
+composer require vantt/opentracing
 ```
 
 ## Usage
-
-When consuming this library one really only need to worry about a couple of key
-abstractions: the `Tracer::startActiveSpan` and `Tracer::startSpan` method,
-the `Span` interface, the `Scope` interface and binding a `Tracer` at bootstrap time. Here are code snippets
-demonstrating some important use cases:
 
 ### Singleton initialization
 
@@ -37,7 +34,38 @@ The simplest starting point is to set the global tracer. As early as possible, d
 ```php
 use OpenTracing\GlobalTracer;
 
-GlobalTracer::set(new MyTracerImplementation());
+$tracer = GlobalTracer::set(new MyTracerImplementation());
+
+```
+
+### Using `SpanBuilder`
+
+This library extends the original api to add a new method `buildSpan(operationName):SpanBuilderInterface`. 
+When consuming this library one really only need to worry about the `buildSpan(operationName)` on the `$tracer` instance: `Tracer::buildSpan(operationName)`
+
+With SpanBuilder, we can leverage the power of editor to do auto code completion for us with following APIs:
+
+- `asChildOf($parentContext)` is an object of type `OpenTracing\SpanContext` or `OpenTracing\Span`.
+- `withStartTimestamp(time())` is a float, int or `\DateTime` representing a timestamp with arbitrary precision.
+- `withTag(key,val)` is an array with string keys and scalar values that represent OpenTracing tags.
+- `ignoreActiveSpan(bool)`
+- `finishSpanOnClose()` is a boolean that determines whether a span should be finished or not when the scope is closed.
+- `addReference()`
+
+Here are code snippets demonstrating some important use cases:
+
+```php
+$span = $tracer->buildSpan('my_span')
+               ->asChildOf($parentContext)
+               ->withTag('foo', 'bar')               
+               ->withStartTimestamp(time())
+               ->start();
+
+$scope = $tracer->buildSpan('my_span')
+                ->asChildOf($parentContext)
+                ->withTag('foo', 'bar')               
+                ->withStartTimestamp(time())
+                ->startActive();
 ```
 
 ### Creating a Span given an existing Request
@@ -60,8 +88,8 @@ function doSomething() {
     ...
 
     // start a new span called 'my_span' and make it a child of the $spanContext
-    $span = GlobalTracer::get()->startSpan('my_span', ['child_of' => $spanContext]);
-
+    $span = GlobalTracer::get()->buildSpan('my_operation_span_name')
+                               ->start();
     ...
     
     // add some logs to the span
@@ -69,7 +97,7 @@ function doSomething() {
         'event' => 'soft error',
         'type' => 'cache timeout',
         'waiter.millis' => 1500,
-    ])
+    ]);
 
     // finish the the span
     $span->finish();
@@ -81,7 +109,7 @@ function doSomething() {
 It's always possible to create a "root" `Span` with no parent or other causal reference.
 
 ```php
-$span = $tracer->startSpan('my_first_span');
+$span = $tracer->buildSpan('my_first_span')->start();
 ...
 $span->finish();
 ```
@@ -95,20 +123,20 @@ An example of a linear, two level deep span tree using active spans looks like
 this in PHP code:
 ```php
 // At dispatcher level
-$scope = $tracer->startActiveSpan('request');
+$scope = $tracer->buildSpan('request')->start();
 ...
 $scope->close();
 ```
 ```php
 // At controller level
-$scope = $tracer->startActiveSpan('controller');
+$scope = $tracer->buildSpan('controller')->startActive();
 ...
 $scope->close();
 ```
 
 ```php
 // At RPC calls level
-$scope = $tracer->startActiveSpan('http');
+$scope = $tracer->buildSpan('http')->startActive();
 file_get_contents('http://php.net');
 $scope->close();
 ```
@@ -134,12 +162,12 @@ argument of `startActiveSpan`.
 #### Creating a child span assigning parent manually
 
 ```php
-$parent = GlobalTracer::get()->startSpan('parent');
+$tracer = GlobalTracer::get();
+$parent = $tracer->startSpan('parent');
 
-$child = GlobalTracer::get()->startSpan('child', [
-    'child_of' => $parent
-]);
-
+$child = $tracer->buildSpan('child_operation')
+                ->asChildOf($parent)
+                ->start();
 ...
 
 $child->finish();
@@ -154,7 +182,7 @@ $parent->finish();
 Every new span will take the active span as parent and it will take its spot.
 
 ```php
-$parent = GlobalTracer::get()->startActiveSpan('parent');
+$parent = GlobalTracer::get()->buildSpan('parent')->startActive();
 
 ...
 
@@ -162,7 +190,7 @@ $parent = GlobalTracer::get()->startActiveSpan('parent');
  * Since the parent span has been created by using startActiveSpan we don't need
  * to pass a reference for this child span
  */
-$child = GlobalTracer::get()->startActiveSpan('my_second_span');
+$child = GlobalTracer::get()->buildSpan('my_second_span')->startActive();
 
 ...
 
@@ -189,7 +217,7 @@ $spanContext = $tracer->extract(
 );
 
 try {
-    $span = $tracer->startSpan('my_span', ['child_of' => $spanContext]);
+    $span = $tracer->buildSpan('my_span')->asChildOf($spanContext)->start();
 
     $client = new Client;
 
@@ -222,9 +250,8 @@ use OpenTracing\Formats;
 
 $tracer = GlobalTracer::get();
 $spanContext = $tracer->extract(Formats\HTTP_HEADERS, getallheaders());
-$tracer->startSpan('my_span', [
-    'child_of' => $spanContext,
-]);
+$tracer->buildSpan('my_span')->asChildOf($spanContext)->startActive();
+
 ```
 
 ### Flushing Spans
@@ -251,6 +278,8 @@ This is optional, tracers can decide to immediately send finished spans to a
 backend. The flush call can be implemented as a NO-OP for these tracers.
 
 ### Using `StartSpanOptions`
+
+This library is still compatible with the StartSpanOption.
 
 Passing options to the pass can be done using either an array or the
 SpanOptions wrapper object. The following keys are valid:

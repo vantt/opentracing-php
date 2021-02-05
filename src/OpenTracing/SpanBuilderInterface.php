@@ -74,4 +74,6 @@ interface SpanBuilderInterface {
     function start(): Span;
 
     function startActive(): Scope;
+
+    function finishSpanOnClose(bool $val);
 }

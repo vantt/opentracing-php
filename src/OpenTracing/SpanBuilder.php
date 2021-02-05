@@ -30,6 +30,7 @@ class SpanBuilder implements SpanBuilderInterface {
         $this->tracer        = $tracer;
     }
 
+
     public function asChildOf($parent): SpanBuilderInterface {
         if ($parent instanceof SpanContext) {
             $this->starOptions['child_of'] = $parent;
@@ -39,6 +40,10 @@ class SpanBuilder implements SpanBuilderInterface {
         }
 
         return $this;
+    }
+
+    function finishSpanOnClose(bool $val) {
+        $this->starOptions['finish_span_on_close'] = $val;
     }
 
     public function withTag(string $key, string $value): SpanBuilderInterface {
