@@ -1,0 +1,13 @@
+services:
+    php56:
+        image: devops/phpcli:5.6
+        volumes:
+            - .:/app
+        working_dir: /app
+        command: php /app/vendor/phpunit/phpunit/phpunit --configuration /app/phpunit.xml --color=always --testdox
+    php70:
+        image: devops/phpcli:7.0
+        volumes:
+            - .:/app
+        working_dir: /app
+        command: php /app/vendor/phpunit/phpunit/phpunit --configuration /app/phpunit.xml --color=always --testdox
