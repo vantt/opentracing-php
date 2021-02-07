@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types = 1);
-
 namespace OpenTracing\Tests;
 
 use OpenTracing\Mock\MockTracer;
@@ -20,9 +18,7 @@ final class SpanBuilderTest extends TestCase {
         $scope  = $tracer->buildSpan(self::OPERATION_NAME)
                          ->startActive();
 
-        $activeSpan = $tracer->getActiveSpan();
-
-        $this->assertEquals($scope->getSpan(), $activeSpan);
+        $this->assertEquals($scope->getSpan(), $tracer->getActiveSpan());
     }
 
     public function test_Start_Success() {

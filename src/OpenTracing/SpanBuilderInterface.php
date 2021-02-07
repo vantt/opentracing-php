@@ -13,7 +13,7 @@ interface SpanBuilderInterface {
      *
      * @return SpanBuilderInterface
      */
-    function asChildOf($parent);
+    public function asChildOf($parent);
 
     /**
      * Add a reference from the Span being built to a distinct (usually parent) Span. May be called multiple times
@@ -35,25 +35,38 @@ interface SpanBuilderInterface {
      *                          referencedContext is the parent. If referencedContext==null, the call to
      *                          {@link #addReference} is a noop.
      *
-     * @see io.opentracing.References
+     * @param string      $referenceType
+     * @param SpanContext $referencedContext
+     *
+     * @return SpanBuilderInterface
+     *
      */
-    function addReference(string $referenceType, SpanContext $referencedContext): SpanBuilderInterface;
+    function addReference($referenceType, $referencedContext);
 
     /**
      * Do not create an implicit {@link References#CHILD_OF} reference to the {@link ScopeManager#activeSpan()}).
+     * @return SpanBuilderInterface
      */
-    function ignoreActiveSpan(): SpanBuilderInterface;
+    function ignoreActiveSpan();
 
-    /** Same as {@link Span#setTag(String, String)}, but for the span being built. */
-    function withTag(string $key, string $value): SpanBuilderInterface;
-
+    /**
+     * Same as {@link Span#setTag(String, String)}, but for the span being built.
+     *
+     * @param string $key
+     * @param string $value
+     *
+     * @return @return SpanBuilderInterface
+     */
+    function withTag($key, $value);
 
     /**
      * Specify a timestamp of when the Span was started, represented in microseconds since epoch.
      *
      * @param int $microseconds
+     *
+     * @return SpanBuilderInterface
      */
-    function withStartTimestamp(int $microseconds);
+    function withStartTimestamp($microseconds);
 
     /**
      * Returns a newly-started {@link Span}.
@@ -70,10 +83,16 @@ interface SpanBuilderInterface {
      * {@link SpanBuilder#start()} or {@link SpanBuilder#startActive} is invoked.
      * @return Span the newly-started Span instance, which has *not* been automatically registered
      *         via the {@link ScopeManager}
+     *
      */
-    function start(): Span;
+    function start();
 
-    function startActive(): Scope;
+    function startActive();
 
-    function finishSpanOnClose(bool $val);
+    /**
+     * @param bool $val
+     *
+     * @return mixed
+     */
+    function finishSpanOnClose($val);
 }

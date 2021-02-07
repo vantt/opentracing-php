@@ -1,26 +1,22 @@
 <?php
 
-declare(strict_types=1);
-
 namespace OpenTracing\Mock;
 
 use OpenTracing\Scope;
 use OpenTracing\ScopeManager;
 use OpenTracing\Span;
 
-final class MockScopeManager implements ScopeManager
-{
+final class MockScopeManager implements ScopeManager {
     /**
-     * @var Scope[]
+     * @var array|Scope[]
      */
     private $scopes = [];
 
     /**
      * {@inheritdoc}
      */
-    public function activate(Span $span, bool $finishSpanOnClose = ScopeManager::DEFAULT_FINISH_SPAN_ON_CLOSE): Scope
-    {
-        $scope = new MockScope($this, $span, $finishSpanOnClose);
+    public function activate(Span $span, $finishSpanOnClose = true) {
+        $scope          = new MockScope($this, $span, $finishSpanOnClose);
         $this->scopes[] = $scope;
 
         return $scope;
@@ -29,8 +25,7 @@ final class MockScopeManager implements ScopeManager
     /**
      * {@inheritdoc}
      */
-    public function getActive(): ?Scope
-    {
+    public function getActive() {
         if (empty($this->scopes)) {
             return null;
         }
@@ -38,11 +33,12 @@ final class MockScopeManager implements ScopeManager
         return $this->scopes[count($this->scopes) - 1];
     }
 
-    public function deactivate(MockScope $scope): void
-    {
-        foreach ($this->scopes as $scopeIndex => $scopeItem) {
-            if ($scope === $scopeItem) {
-                unset($this->scopes[$scopeIndex]);
+    public function deactivate(MockScope $scope) {
+        $scopeLength = count($this->scopes);
+
+        for ($i = 0; $i < $scopeLength; $i++) {
+            if ($scope === $this->scopes[$i]) {
+                unset($this->scopes[$i]);
             }
         }
     }

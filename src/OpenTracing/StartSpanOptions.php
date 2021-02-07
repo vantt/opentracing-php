@@ -1,13 +1,9 @@
 <?php
 
-declare(strict_types=1);
-
 namespace OpenTracing;
 
-use DateTime;
-use DateTimeInterface;
-use OpenTracing\InvalidReferencesSetException;
-use OpenTracing\InvalidSpanOptionException;
+use OpenTracing\Exceptions\InvalidReferencesSet;
+use OpenTracing\Exceptions\InvalidSpanOption;
 
 final class StartSpanOptions
 {
@@ -22,7 +18,7 @@ final class StartSpanOptions
     private $tags = [];
 
     /**
-     * @var int|float|DateTimeInterface
+     * @var int|float|\DateTimeInterface
      */
     private $startTime;
 
@@ -31,20 +27,15 @@ final class StartSpanOptions
      *
      * @var bool
      */
-    private $finishSpanOnClose = ScopeManager::DEFAULT_FINISH_SPAN_ON_CLOSE;
-
-    /**
-     * @var bool
-     */
-    private $ignoreActiveSpan = false;
+    private $finishSpanOnClose = true;
 
     /**
      * @param array $options
+     * @throws InvalidSpanOption when one of the options is invalid
+     * @throws InvalidReferencesSet when there are inconsistencies about the references
      * @return StartSpanOptions
-     * @throws InvalidReferencesSetException when there are inconsistencies about the references
-     * @throws InvalidSpanOptionException when one of the options is invalid
      */
-    public static function create(array $options): StartSpanOptions
+    public static function create(array $options)
     {
         $spanOptions = new self();
 
@@ -52,7 +43,7 @@ final class StartSpanOptions
             switch ($key) {
                 case 'child_of':
                     if (!empty($spanOptions->references)) {
-                        throw InvalidSpanOptionException::forIncludingBothChildOfAndReferences();
+                        throw InvalidSpanOption::forIncludingBothChildOfAndReferences();
                     }
 
                     $spanOptions->references[] = self::buildChildOf($value);
@@ -60,7 +51,7 @@ final class StartSpanOptions
 
                 case 'references':
                     if (!empty($spanOptions->references)) {
-                        throw InvalidSpanOptionException::forIncludingBothChildOfAndReferences();
+                        throw InvalidSpanOption::forIncludingBothChildOfAndReferences();
                     }
 
                     if ($value instanceof Reference) {
@@ -68,19 +59,19 @@ final class StartSpanOptions
                     } elseif (is_array($value)) {
                         $spanOptions->references = self::buildReferences($value);
                     } else {
-                        throw InvalidSpanOptionException::forInvalidReferenceSet($value);
+                        throw InvalidSpanOption::forInvalidReferenceSet($value);
                     }
 
                     break;
 
                 case 'tags':
                     if (!is_array($value)) {
-                        throw InvalidSpanOptionException::forInvalidTags($value);
+                        throw InvalidSpanOption::forInvalidTags($value);
                     }
 
                     foreach ($value as $tag => $tagValue) {
-                        if ($tag !== (string)$tag) {
-                            throw InvalidSpanOptionException::forInvalidTag($tag);
+                        if ($tag !== (string) $tag) {
+                            throw InvalidSpanOption::forInvalidTag($tag);
                         }
 
                         $spanOptions->tags[$tag] = $tagValue;
@@ -89,7 +80,7 @@ final class StartSpanOptions
 
                 case 'start_time':
                     if (is_scalar($value) && !is_numeric($value)) {
-                        throw InvalidSpanOptionException::forInvalidStartTime();
+                        throw InvalidSpanOption::forInvalidStartTime();
                     }
 
                     $spanOptions->startTime = $value;
@@ -97,22 +88,15 @@ final class StartSpanOptions
 
                 case 'finish_span_on_close':
                     if (!is_bool($value)) {
-                        throw InvalidSpanOptionException::forFinishSpanOnClose($value);
+                        throw InvalidSpanOption::forFinishSpanOnClose($value);
                     }
 
                     $spanOptions->finishSpanOnClose = $value;
                     break;
 
-                case 'ignore_active_span':
-                    if (!is_bool($value)) {
-                        throw InvalidSpanOptionException::forIgnoreActiveSpan($value);
-                    }
-
-                    $spanOptions->ignoreActiveSpan = $value;
-                    break;
-
                 default:
-                    throw InvalidSpanOptionException::forUnknownOption($key);
+                    throw InvalidSpanOption::forUnknownOption($key);
+                    break;
             }
         }
 
@@ -123,14 +107,13 @@ final class StartSpanOptions
      * @param Span|SpanContext $parent
      * @return StartSpanOptions
      */
-    public function withParent($parent): StartSpanOptions
+    public function withParent($parent)
     {
         $newSpanOptions = new StartSpanOptions();
         $newSpanOptions->references[] = self::buildChildOf($parent);
         $newSpanOptions->tags = $this->tags;
         $newSpanOptions->startTime = $this->startTime;
         $newSpanOptions->finishSpanOnClose = $this->finishSpanOnClose;
-        $newSpanOptions->ignoreActiveSpan = $this->ignoreActiveSpan;
 
         return $newSpanOptions;
     }
@@ -138,7 +121,7 @@ final class StartSpanOptions
     /**
      * @return Reference[]
      */
-    public function getReferences(): array
+    public function getReferences()
     {
         return $this->references;
     }
@@ -146,13 +129,13 @@ final class StartSpanOptions
     /**
      * @return array
      */
-    public function getTags(): array
+    public function getTags()
     {
         return $this->tags;
     }
 
     /**
-     * @return int|float|DateTime|null if returning float or int it should represent
+     * @return int|float|\DateTime|null if returning float or int it should represent
      * the timestamp (including as many decimal places as you need)
      */
     public function getStartTime()
@@ -163,39 +146,31 @@ final class StartSpanOptions
     /**
      * @return bool
      */
-    public function shouldFinishSpanOnClose(): bool
+    public function shouldFinishSpanOnClose()
     {
         return $this->finishSpanOnClose;
     }
 
-    /**
-     * @return bool
-     */
-    public function shouldIgnoreActiveSpan(): bool
-    {
-        return $this->ignoreActiveSpan;
-    }
-
-    private static function buildChildOf($value): Reference
+    private static function buildChildOf($value)
     {
         if ($value instanceof Span) {
-            return Reference::createForSpan(Reference::CHILD_OF, $value);
+            return Reference::create(Reference::CHILD_OF, $value->getContext());
         }
 
         if ($value instanceof SpanContext) {
-            return new Reference(Reference::CHILD_OF, $value);
+            return Reference::create(Reference::CHILD_OF, $value);
         }
 
-        throw InvalidSpanOptionException::forInvalidChildOf($value);
+        throw InvalidSpanOption::forInvalidChildOf($value);
     }
 
-    private static function buildReferences(array $referencesArray): array
+    private static function buildReferences(array $referencesArray)
     {
         $references = [];
 
         foreach ($referencesArray as $reference) {
             if (!($reference instanceof Reference)) {
-                throw InvalidSpanOptionException::forInvalidReference($reference);
+                throw InvalidSpanOption::forInvalidReference($reference);
             }
 
             $references[] = $reference;

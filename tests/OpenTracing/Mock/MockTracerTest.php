@@ -1,94 +1,52 @@
 <?php
 
-declare(strict_types=1);
+namespace OpenTracing\Mock\Tests;
 
-namespace OpenTracing\Tests\Mock;
-
-use OpenTracing\InvalidReferenceArgumentException;
-use OpenTracing\UnsupportedFormatException;
+use OpenTracing\Exceptions\UnsupportedFormat;
 use OpenTracing\Mock\MockTracer;
-use OpenTracing\NoopSpanContext;
-use OpenTracing\Reference;
-use OpenTracing\Span;
-use OpenTracing\SpanContext;
-use PHPUnit\Framework\TestCase;
+use OpenTracing\NoopSpan;
+use PHPUnit_Framework_TestCase;
 
 /**
  * @covers MockTracer
  */
-final class MockTracerTest extends TestCase
-{
-    private const OPERATION_NAME = 'test_name';
-    private const FORMAT = 'test_format';
+final class MockTracerTest extends PHPUnit_Framework_TestCase {
+    const OPERATION_NAME = 'test_name';
+    const FORMAT         = 'test_format';
 
-    public function testStartActiveSpanSuccess()
-    {
-        $tracer = new MockTracer();
-        $scope = $tracer->startActiveSpan(self::OPERATION_NAME);
+    public function testStartActiveSpanSuccess() {
+        $tracer     = new MockTracer();
+        $scope      = $tracer->startActiveSpan(self::OPERATION_NAME);
         $activeSpan = $tracer->getActiveSpan();
-
         $this->assertEquals($scope->getSpan(), $activeSpan);
     }
 
-    public function testStartSpanSuccess()
-    {
+    public function testStartSpanSuccess() {
         $tracer = new MockTracer();
         $tracer->startSpan(self::OPERATION_NAME);
         $activeSpan = $tracer->getActiveSpan();
-
         $this->assertNull($activeSpan);
     }
 
-    public function testStartSpanWithReference(): void
-    {
-        $tracer = new MockTracer();
-        $tracer->startSpan('parent_name');
-        /** @var Span $parentSpan */
-        $parentSpan = $tracer->getSpans()[0];
-        $tracer->startSpan(
-            self::OPERATION_NAME,
-            ['references' => [Reference::createForSpan(Reference::CHILD_OF, $parentSpan)]]
-        );
-        $activeSpan = $tracer->getActiveSpan();
-
-        self::assertNull($activeSpan);
-    }
-
-    public function testStartSpanWithReferenceWithoutExpectedContextType(): void
-    {
-        $tracer = new MockTracer();
-        $notAMockContext = new NoopSpanContext();
-
-        $this->expectException(InvalidReferenceArgumentException::class);
-
-        $tracer->startSpan(
-            self::OPERATION_NAME,
-            ['references' => [new Reference(Reference::CHILD_OF, $notAMockContext)]]
-        );
-    }
-
-    public function testInjectWithNoInjectorsFails()
-    {
-        $tracer = new MockTracer();
-        $span = $tracer->startSpan(self::OPERATION_NAME);
+    public function testInjectWithNoInjectorsFails() {
+        $tracer  = new MockTracer();
+        $span    = $tracer->startSpan(self::OPERATION_NAME);
         $carrier = [];
-
-        $this->expectException(UnsupportedFormatException::class);
+        $this->expectException(UnsupportedFormat::class);
         $tracer->inject($span->getContext(), self::FORMAT, $carrier);
     }
 
-    public function testInjectSuccess()
-    {
+    public function testInjectSuccess() {
         $actualSpanContext = null;
-        $actualCarrier = null;
+        $actualCarrier     = null;
 
-        $injector = function ($spanContext, &$carrier) use (&$actualSpanContext, &$actualCarrier) {
+        $injector = function($spanContext, $carrier) use (&$actualSpanContext, &$actualCarrier) {
             $actualSpanContext = $spanContext;
-            $actualCarrier = $carrier;
+            $actualCarrier     = $carrier;
         };
 
-        $tracer = new MockTracer([self::FORMAT => $injector]);
-        $span = $tracer->startSpan(self::OPERATION_NAME);
+        $tracer  = new MockTracer([self::FORMAT => $injector]);
+        $span    = $tracer->startSpan(self::OPERATION_NAME);
         $carrier = [];
         $tracer->inject($span->getContext(), self::FORMAT, $carrier);
 
@@ -96,44 +54,36 @@ final class MockTracerTest extends TestCase
         $this->assertSame($carrier, $actualCarrier);
     }
 
-    public function testExtractWithNoExtractorsFails()
-    {
-        $tracer = new MockTracer();
+    public function testExtractWithNoExtractorsFails() {
+        $tracer  = new MockTracer();
         $carrier = [];
-
-        $this->expectException(UnsupportedFormatException::class);
+        $this->expectException(UnsupportedFormat::class);
         $tracer->extract(self::FORMAT, $carrier);
     }
 
-    public function testExtractSuccess()
-    {
+    public function testExtractSuccess() {
         $actualSpanContext = null;
-        $actualCarrier = null;
+        $actualCarrier     = null;
 
-        $extractor = function ($carrier) use (&$actualCarrier) {
+        $extractor = function($carrier) use (&$actualCarrier) {
             $actualCarrier = $carrier;
-            return new NoopSpanContext();
+
+            return NoopSpan::create();
         };
 
-        $tracer = new MockTracer([], [self::FORMAT => $extractor]);
+        $tracer  = new MockTracer([], [self::FORMAT => $extractor]);
         $carrier = [
-            'TRACE_ID' => 'trace_id'
+          'TRACE_ID' => 'trace_id',
         ];
 
-        $spanContext = $tracer->extract(self::FORMAT, $carrier);
-
-        $this->assertInstanceOf(SpanContext::class, $spanContext);
+        $tracer->extract(self::FORMAT, $carrier);
     }
 
-    public function testFlushSuccess()
-    {
+    public function testFlushSuccess() {
         $tracer = new MockTracer();
         $tracer->startSpan(self::OPERATION_NAME);
-
         $this->assertCount(1, $tracer->getSpans());
-
         $tracer->flush();
-
         $this->assertCount(0, $tracer->getSpans());
     }
 }

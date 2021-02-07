@@ -1,15 +1,18 @@
 <?php
 
-declare(strict_types=1);
-
 namespace OpenTracing;
 
 final class NoopSpan implements Span
 {
+    public static function create()
+    {
+        return new self();
+    }
+
     /**
      * {@inheritdoc}
      */
-    public function getOperationName(): string
+    public function getOperationName()
     {
         return 'noop_span';
     }
@@ -17,50 +20,50 @@ final class NoopSpan implements Span
     /**
      * {@inheritdoc}
      */
-    public function getContext(): SpanContext
+    public function getContext()
     {
-        return new NoopSpanContext();
+        return NoopSpanContext::create();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function finish($finishTime = null): void
-    {
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function overwriteOperationName(string $newOperationName): void
+    public function finish($finishTime = null)
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setTag(string $key, $value): void
+    public function overwriteOperationName($newOperationName)
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function log(array $fields = [], $timestamp = null): void
+    public function setTag($key, $value)
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function addBaggageItem(string $key, string $value): void
+    public function log(array $fields = [], $timestamp = null)
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getBaggageItem(string $key): ?string
+    public function addBaggageItem($key, $value)
+    {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBaggageItem($key)
     {
         return null;
     }

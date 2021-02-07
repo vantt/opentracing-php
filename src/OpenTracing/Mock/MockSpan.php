@@ -1,9 +1,8 @@
 <?php
 
-declare(strict_types = 1);
-
 namespace OpenTracing\Mock;
 
+use OpenTracing\ScopeManager;
 use OpenTracing\Span;
 use OpenTracing\SpanContext;
 
@@ -38,7 +37,11 @@ final class MockSpan implements Span {
      */
     private $duration;
 
-    public function __construct(string $operationName, SpanContext $context, ?int $startTime = null) {
+    public function __construct(
+      $operationName,
+      SpanContext $context,
+      $startTime = null
+    ) {
         $this->operationName = $operationName;
         $this->context       = $context;
         $this->startTime     = $startTime ?: time();
@@ -47,7 +50,7 @@ final class MockSpan implements Span {
     /**
      * {@inheritdoc}
      */
-    public function getOperationName(): string {
+    public function getOperationName() {
         return $this->operationName;
     }
 
@@ -55,73 +58,73 @@ final class MockSpan implements Span {
      * {@inheritdoc}
      * @return SpanContext|MockSpanContext
      */
-    public function getContext(): SpanContext {
+    public function getContext() {
         return $this->context;
     }
 
-    public function getStartTime(): ?int {
+    public function getStartTime() {
         return $this->startTime;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function finish($finishTime = null): void {
+    public function finish($finishTime = null) {
         $finishTime     = ($finishTime ?: time());
         $this->duration = $finishTime - $this->startTime;
     }
 
-    public function isFinished(): bool {
+    public function isFinished() {
         return $this->duration !== null;
     }
 
-    public function getDuration(): ?int {
+    public function getDuration() {
         return $this->duration;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function overwriteOperationName(string $newOperationName): void {
+    public function overwriteOperationName($newOperationName) {
         $this->operationName = (string)$newOperationName;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setTag(string $key, $value): void {
+    public function setTag($key, $value) {
         $this->tags[$key] = $value;
     }
 
-    public function getTags(): array {
+    public function getTags() {
         return $this->tags;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function log(array $fields = [], $timestamp = null): void {
+    public function log(array $fields = [], $timestamp = null) {
         $this->logs[] = [
           'timestamp' => $timestamp ?: time(),
           'fields'    => $fields,
         ];
     }
 
-    public function getLogs(): array {
+    public function getLogs() {
         return $this->logs;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function addBaggageItem(string $key, string $value): void {
+    public function addBaggageItem($key, $value) {
         $this->context = $this->context->withBaggageItem($key, $value);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getBaggageItem(string $key): ?string {
+    public function getBaggageItem($key) {
         return $this->context->getBaggageItem($key);
     }
 }

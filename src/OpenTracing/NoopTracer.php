@@ -1,60 +1,65 @@
 <?php
 
-declare(strict_types = 1);
-
 namespace OpenTracing;
 
-final class NoopTracer implements Tracer {
+final class NoopTracer implements Tracer
+{
     /**
      * {@inheritdoc}
      */
-    public function getActiveSpan(): ?Span {
-        return new NoopSpan();
+    public function getActiveSpan()
+    {
+        return NoopSpan::create();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getScopeManager(): ScopeManager {
+    public function getScopeManager()
+    {
         return new NoopScopeManager();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function startSpan(string $operationName, $options = []): Span {
-        return new NoopSpan();
+    public static function create()
+    {
+        return new self();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function startActiveSpan(string $operationName, $options = []): Scope {
-        return new NoopScope();
+    public function startSpan($operationName, $options = [])
+    {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function inject(SpanContext $spanContext, string $format, &$carrier): void {
+    public function startActiveSpan($operationName, $finishSpanOnClose = true, $options = [])
+    {
+
+        return NoopScope::create();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function extract(string $format, $carrier): ?SpanContext {
-        return new NoopSpanContext();
+    public function inject(SpanContext $spanContext, $format, &$carrier)
+    {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function flush(): void {
+    public function extract($format, $carrier)
+    {
+        return NoopSpanContext::create();
     }
 
-    public function buildSpan(string $operationName): SpanBuilderInterface {
-        return new NoopSpanBuilder($operationName, $this);
+    /**
+     * {@inheritdoc}
+     */
+    public function flush()
+    {
     }
-
-
 }
