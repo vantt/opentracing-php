@@ -1,22 +1,21 @@
 <?php
 
-declare(strict_types = 1);
-
 namespace OpenTracing\Mock;
 
-use OpenTracing\InvalidReferenceArgumentException;
+use OpenTracing\Buildable;
+use OpenTracing\BuildableInterface;
+use OpenTracing\Exceptions\UnsupportedFormat;
 use OpenTracing\Reference;
-use OpenTracing\SpanBuilder;
-use OpenTracing\SpanBuilderInterface;
-use OpenTracing\UnsupportedFormatException;
-use OpenTracing\Scope;
 use OpenTracing\ScopeManager;
-use OpenTracing\Span;
-use OpenTracing\SpanContext;
 use OpenTracing\StartSpanOptions;
 use OpenTracing\Tracer;
+use OpenTracing\SpanContext;
+use OpenTracing\Exceptions\InvalidReferenceArgument;
 
-final class MockTracer implements Tracer {
+final class MockTracer implements Tracer, BuildableInterface {
+
+    use Buildable;
+
     /**
      * @var array|MockSpan[]
      */
@@ -46,7 +45,7 @@ final class MockTracer implements Tracer {
     /**
      * {@inheritdoc}
      */
-    public function startActiveSpan(string $operationName, $options = []): Scope {
+    public function startActiveSpan($operationName, $options = []) {
         if (!($options instanceof StartSpanOptions)) {
             $options = StartSpanOptions::create($options);
         }
@@ -66,7 +65,7 @@ final class MockTracer implements Tracer {
     /**
      * {@inheritdoc}
      */
-    public function startSpan(string $operationName, $options = []): Span {
+    public function startSpan($operationName, $options = []) {
         if (!($options instanceof StartSpanOptions)) {
             $options = StartSpanOptions::create($options);
         }
@@ -79,7 +78,7 @@ final class MockTracer implements Tracer {
         }
         else {
             if (!$parentSpanContext instanceof MockSpanContext) {
-                throw InvalidReferenceArgumentException::forInvalidContext($parentSpanContext);
+                throw InvalidReferenceArgument::forInvalidContext($parentSpanContext);
             }
             $spanContext = MockSpanContext::createAsChildOf($parentSpanContext);
         }
@@ -98,50 +97,50 @@ final class MockTracer implements Tracer {
     /**
      * {@inheritdoc}
      */
-    public function inject(SpanContext $spanContext, string $format, &$carrier): void {
+    public function inject(SpanContext $spanContext, $format, &$carrier) {
         if (!array_key_exists($format, $this->injectors)) {
-            throw UnsupportedFormatException::forFormat($format);
+            throw UnsupportedFormat::forFormat($format);
         }
 
-        $this->injectors[$format]($spanContext, $carrier);
+        call_user_func($this->injectors[$format], $spanContext, $carrier);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function extract(string $format, $carrier): ?SpanContext {
+    public function extract($format, $carrier) {
         if (!array_key_exists($format, $this->extractors)) {
-            throw UnsupportedFormatException::forFormat($format);
+            throw UnsupportedFormat::forFormat($format);
         }
 
-        return $this->extractors[$format]($carrier);
+        return call_user_func($this->extractors[$format], $carrier);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function flush(): void {
+    public function flush() {
         $this->spans = [];
     }
 
     /**
      * @return array|MockSpan[]
      */
-    public function getSpans(): array {
+    public function getSpans() {
         return $this->spans;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getScopeManager(): ScopeManager {
+    public function getScopeManager() {
         return $this->scopeManager;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getActiveSpan(): ?Span {
+    public function getActiveSpan() {
         if (null !== ($activeScope = $this->scopeManager->getActive())) {
             return $activeScope->getSpan();
         }
@@ -149,46 +148,12 @@ final class MockTracer implements Tracer {
         return null;
     }
 
-    /**
-     * Return a new SpanBuilder for a Span with the given `operationName`.
-     *
-     * <p>You can override the operationName later via {@link Span#setOperationName(String)}.
-     *
-     * <p>A contrived example:
-     * <pre><code>
-     *   Tracer tracer = ...
-     *
-     *   // Note: if there is a `tracer.activeSpan()` instance, it will be used as the target
-     *   // of an implicit CHILD_OF Reference when `start()` is invoked,
-     *   // unless another Span reference is explicitly provided to the builder.
-     *   Span span = tracer.buildSpan("HandleHTTPRequest")
-     *                     .asChildOf(rpcSpanContext)  // an explicit parent
-     *                     .withTag("user_agent", req.UserAgent)
-     *                     .withTag("lucky_number", 42)
-     *                     .start();
-     *   span.setTag("...", "...");
-     *
-     *   // It is possible to set the Span as the active instance for the current context
-     *   // (usually a thread).
-     *   try (Scope scope = tracer.activateSpan(span)) {
-     *      ...
-     *   }
-     * </code></pre>
-     *
-     * @param string $operationName
-     *
-     * @return SpanBuilderInterface
-     */
-    public function buildSpan(string $operationName): SpanBuilderInterface {
-        return new SpanBuilder($operationName, $this);
-    }
-
-    private function getParentSpanContext(StartSpanOptions $options): ?SpanContext {
-        $references = $options->getReferences();
+    private function getParentSpanContext($startSpanOptions) {
+        $references = $startSpanOptions->getReferences();
         $parentSpan = null;
 
         foreach ($references as $ref) {
-            $parentSpan = $ref->getSpanContext();
+            $parentSpan = $ref->getContext();
             if ($ref->isType(Reference::CHILD_OF)) {
                 return $parentSpan;
             }

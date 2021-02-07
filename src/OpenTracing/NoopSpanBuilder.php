@@ -25,28 +25,30 @@ class NoopSpanBuilder implements SpanBuilderInterface {
         return $this;
     }
 
-    function addReference(string $referenceType, \OpenTracing\SpanContext $referencedContext): SpanBuilderInterface {
+    function addReference($referenceType, $referencedContext) {
         return $this;
     }
 
-    function ignoreActiveSpan(): SpanBuilderInterface {
+    function ignoreActiveSpan() {
         return $this;
     }
 
-    function withTag(string $key, string $value): SpanBuilderInterface {
+    function withTag($key, $value) {
         return $this;
     }
 
-    function withStartTimestamp(int $microseconds) {
+    function withStartTimestamp($microseconds) {
         return $this;
     }
 
-    function start(): Span {
+    function finishSpanOnClose($val) {
+    }
+
+    function start() {
         return $this->tracer->startSpan($this->operationName, []);
     }
 
-    function startActive(): Scope {
+    function startActive() {
         return $this->tracer->startActiveSpan($this->operationName, []);
     }
-
 }
