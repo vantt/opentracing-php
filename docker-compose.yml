@@ -1,13 +1,75 @@
 services:
-    php56:
-        image: devops/phpcli:5.6
-        volumes:
-            - .:/app
-        working_dir: /app
-        command: php /app/vendor/phpunit/phpunit/phpunit --configuration /app/phpunit.xml --color=always --testdox
-    php70:
-        image: devops/phpcli:7.0
-        volumes:
-            - .:/app
-        working_dir: /app
-        command: php /app/vendor/phpunit/phpunit/phpunit --configuration /app/phpunit.xml --color=always --testdox
+#    php80:
+#        image: php:8.0-cli-alpine
+#        volumes:
+#            - .:/app
+#        working_dir: /app
+#        command: >
+#            sh -c  "
+#                rm -rf vendor && rm composer.lock &&
+#                wget -O composer https://getcomposer.org/composer-2.phar &&
+#                chmod +x composer &&
+#                ./composer install &&
+#                php /app/vendor/phpunit/phpunit/phpunit --configuration /app/phpunit.xml --color=always --testdox --verbose &&
+#                rm composer
+#            "
+
+#    php74:
+#        image: php:7.4-cli-alpine
+#        volumes:
+#            - .:/app
+#        working_dir: /app
+#        command: >
+#            sh -c  "
+#                rm -rf vendor && rm composer.lock &&
+#                wget -O composer https://getcomposer.org/composer-2.phar &&
+#                chmod +x composer &&
+#                ./composer install &&
+#                php /app/vendor/phpunit/phpunit/phpunit --configuration /app/phpunit.xml --color=always --testdox --verbose &&
+#                rm composer
+#            "
+
+#    php73:
+#        image: php:7.3-cli-alpine
+#        volumes:
+#            - .:/app
+#        working_dir: /app
+#        command: >
+#            sh -c  "
+#                rm -rf vendor && rm composer.lock &&
+#                wget -O composer https://getcomposer.org/composer-2.phar &&
+#                chmod +x composer &&
+#                ./composer install &&
+#                php /app/vendor/phpunit/phpunit/phpunit --configuration /app/phpunit.xml --color=always --testdox --verbose &&
+#                rm composer
+#            "
+
+#    php72:
+#        image: php:7.2-cli-alpine
+#        volumes:
+#            - .:/app
+#        working_dir: /app
+#        command: >
+#            sh -c  "
+#                rm -rf vendor && rm composer.lock &&
+#                wget -O composer https://getcomposer.org/composer-2.phar &&
+#                chmod +x composer &&
+#                ./composer install &&
+#                php /app/vendor/phpunit/phpunit/phpunit --configuration /app/phpunit.xml --color=always --testdox --verbose &&
+#                rm composer
+#            "
+
+#    php71:
+#        image: php:7.1-cli-alpine
+#        volumes:
+#            - .:/app
+#        working_dir: /app
+#        command: >
+#            sh -c  "
+#                rm -rf vendor && rm composer.lock &&
+#                wget -O composer https://getcomposer.org/composer-2.phar &&
+#                chmod +x composer &&
+#                ./composer install &&
+#                php /app/vendor/phpunit/phpunit/phpunit --configuration /app/phpunit.xml --color=always --testdox --verbose &&
+#                rm composer
+#            "

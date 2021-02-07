@@ -25,13 +25,13 @@ class SpanBuilder implements SpanBuilderInterface {
       'references'           => [],
     ];
 
-    public function __construct($operationName, $tracer) {
+    public function __construct(string $operationName, $tracer) {
         $this->operationName = $operationName;
         $this->tracer        = $tracer;
     }
 
 
-    public function asChildOf($parent) {
+    public function asChildOf($parent): SpanBuilderInterface {
         if ($parent instanceof SpanContext) {
             $this->starOptions['child_of'] = $parent;
         }
@@ -42,45 +42,43 @@ class SpanBuilder implements SpanBuilderInterface {
         return $this;
     }
 
-    function finishSpanOnClose($val) {
+    function finishSpanOnClose(bool $val): SpanBuilderInterface {
         $this->starOptions['finish_span_on_close'] = $val;
+	return $this;
     }
 
-    public function withTag($key, $value) {
+    public function withTag(string $key, string $value): SpanBuilderInterface {
         $this->starOptions['tags'][$key] = $value;
 
         return $this;
     }
 
-    public function addReference($referenceType, $referencedContext) {
+    public function addReference(string $referenceType, SpanContext $referencedContext): SpanBuilderInterface {
         if ($referencedContext != null) {
             $this->starOptions['references'][] = Reference::create($referenceType, $referencedContext);
         }
-
-        return $this;
+return $this;
     }
 
-    public function ignoreActiveSpan() {
+    public function ignoreActiveSpan(): SpanBuilderInterface {
         $this->ignoringActiveSpan = true;
 
         return $this;
     }
 
-    public function withStartTimestamp($microseconds) {
+    public function withStartTimestamp(int $microseconds): SpanBuilderInterface {
         $this->starOptions['start_time'] = $microseconds;
 
         return $this;
     }
 
-    public function start() {
+    public function start(): Span {
         $this->verifyActiveSpan();
-
         return $this->tracer->startSpan($this->operationName, $this->starOptions);
     }
 
-    public function startActive() {
+    public function startActive(): Scope {
         $this->verifyActiveSpan();
-
         return $this->tracer->startActiveSpan($this->operationName, $this->starOptions);
     }
 

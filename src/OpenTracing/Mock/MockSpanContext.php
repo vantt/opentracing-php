@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace OpenTracing\Mock;
 
-use ArrayIterator;
 use OpenTracing\SpanContext;
+use ArrayIterator;
 
 final class MockSpanContext implements SpanContext {
     /**
@@ -31,82 +33,79 @@ final class MockSpanContext implements SpanContext {
      */
     private $items;
 
-    private function __construct($traceId, $spanId, $isSampled, array $items) {
+    private function __construct(string $traceId, string $spanId, bool $isSampled, array $items) {
         $this->traceId   = $traceId;
         $this->spanId    = $spanId;
         $this->isSampled = $isSampled;
         $this->items     = $items;
     }
 
-    /**
-     *
-     */
-    public function setParentId($parentId) {
+    public function setParentId(string $parentId) {
         $this->parentId = $parentId;
     }
 
     /**
      * {@inheritdoc}
-     *
-     * @return string
      */
-    public function getParentId() {
+    public function getParentId(): ?string {
         return $this->parentId;
     }
 
-    public static function create($traceId, $spanId, $sampled = true, array $items = []) {
+    public static function create(string $traceId, string $spanId, bool $sampled = true, array $items = []): SpanContext {
         return new self($traceId, $spanId, $sampled, $items);
     }
 
-    public static function createAsRoot($sampled = true, array $items = []) {
+    public static function createAsRoot(bool $sampled = true, array $items = []): SpanContext {
         $traceId = $spanId = self::nextId();
-
         return new self($traceId, $spanId, $sampled, $items);
     }
 
-    public static function createAsChildOf(MockSpanContext $spanContext) {
-        $spanId  = self::nextId();
+    public static function createAsChildOf(MockSpanContext $spanContext): SpanContext {
+        $spanId = self::nextId();
+
         $context = new self($spanContext->getTraceId(), $spanId, $spanContext->isSampled, $spanContext->items);
         $context->setParentId($spanContext->getSpanId());
 
         return $context;
     }
 
-    public function getTraceId() {
+    public function getTraceId(): string {
         return $this->traceId;
     }
 
-    public function getSpanId() {
+    public function getSpanId(): string {
         return $this->spanId;
     }
 
-    public function isSampled() {
+    public function isSampled(): bool {
         return $this->isSampled;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getIterator() {
+    public function getIterator(): ArrayIterator {
         return new ArrayIterator($this->items);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getBaggageItem($key) {
+    public function getBaggageItem(string $key): ?string {
         return array_key_exists($key, $this->items) ? $this->items[$key] : null;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function withBaggageItem($key, $value) {
+    public function withBaggageItem(string $key, string $value): SpanContext {
         return new self($this->traceId, $this->spanId, $this->isSampled, array_merge($this->items, [$key => $value]));
     }
 
-    private static function nextId() {
-        return mt_rand(0, 99999);
+
+
+    private static function nextId(): string {
+        return (string)mt_rand(0, 99999);
     }
 
     /**

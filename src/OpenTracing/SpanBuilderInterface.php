@@ -13,7 +13,7 @@ interface SpanBuilderInterface {
      *
      * @return SpanBuilderInterface
      */
-    public function asChildOf($parent);
+    function asChildOf($parent): SpanBuilderInterface;
 
     /**
      * Add a reference from the Span being built to a distinct (usually parent) Span. May be called multiple times
@@ -41,13 +41,13 @@ interface SpanBuilderInterface {
      * @return SpanBuilderInterface
      *
      */
-    function addReference($referenceType, $referencedContext);
+    function addReference(string $referenceType, SpanContext $referencedContext): SpanBuilderInterface;
 
     /**
      * Do not create an implicit {@link References#CHILD_OF} reference to the {@link ScopeManager#activeSpan()}).
      * @return SpanBuilderInterface
      */
-    function ignoreActiveSpan();
+    function ignoreActiveSpan(): SpanBuilderInterface;
 
     /**
      * Same as {@link Span#setTag(String, String)}, but for the span being built.
@@ -57,7 +57,8 @@ interface SpanBuilderInterface {
      *
      * @return @return SpanBuilderInterface
      */
-    function withTag($key, $value);
+    function withTag(string $key, string $value): SpanBuilderInterface;
+
 
     /**
      * Specify a timestamp of when the Span was started, represented in microseconds since epoch.
@@ -66,7 +67,7 @@ interface SpanBuilderInterface {
      *
      * @return SpanBuilderInterface
      */
-    function withStartTimestamp($microseconds);
+    function withStartTimestamp(int $microseconds): SpanBuilderInterface;
 
     /**
      * Returns a newly-started {@link Span}.
@@ -83,16 +84,10 @@ interface SpanBuilderInterface {
      * {@link SpanBuilder#start()} or {@link SpanBuilder#startActive} is invoked.
      * @return Span the newly-started Span instance, which has *not* been automatically registered
      *         via the {@link ScopeManager}
-     *
      */
-    function start();
+    function start(): Span;
 
-    function startActive();
+    function startActive(): Scope;
 
-    /**
-     * @param bool $val
-     *
-     * @return mixed
-     */
-    function finishSpanOnClose($val);
+    function finishSpanOnClose(bool $val): SpanBuilderInterface;
 }
