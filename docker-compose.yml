@@ -6,7 +6,7 @@ services:
 #        working_dir: /app
 #        command: >
 #            sh -c  "
-#                rm -rf vendor && rm composer.lock &&
+#                rm -rf vendor && rm -f composer.lock &&
 #                wget -O composer https://getcomposer.org/composer-2.phar &&
 #                chmod +x composer &&
 #                ./composer install &&
@@ -21,7 +21,7 @@ services:
 #        working_dir: /app
 #        command: >
 #            sh -c  "
-#                rm -rf vendor && rm composer.lock &&
+#                rm -rf vendor && rm -f composer.lock &&
 #                wget -O composer https://getcomposer.org/composer-2.phar &&
 #                chmod +x composer &&
 #                ./composer install &&
@@ -36,7 +36,7 @@ services:
 #        working_dir: /app
 #        command: >
 #            sh -c  "
-#                rm -rf vendor && rm composer.lock &&
+#                rm -rf vendor && rm -f composer.lock &&
 #                wget -O composer https://getcomposer.org/composer-2.phar &&
 #                chmod +x composer &&
 #                ./composer install &&
@@ -51,7 +51,7 @@ services:
 #        working_dir: /app
 #        command: >
 #            sh -c  "
-#                rm -rf vendor && rm composer.lock &&
+#                rm -rf vendor && rm -f composer.lock &&
 #                wget -O composer https://getcomposer.org/composer-2.phar &&
 #                chmod +x composer &&
 #                ./composer install &&
@@ -66,7 +66,7 @@ services:
 #        working_dir: /app
 #        command: >
 #            sh -c  "
-#                rm -rf vendor && rm composer.lock &&
+#                rm -rf vendor && rm -f composer.lock &&
 #                wget -O composer https://getcomposer.org/composer-2.phar &&
 #                chmod +x composer &&
 #                ./composer install &&
