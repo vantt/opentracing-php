@@ -6,14 +6,15 @@ use OpenTracing\Scope;
 use OpenTracing\Span;
 use OpenTracing\SpanContext;
 
-interface SpanBuilderInterface {
+interface SpanBuilderInterface
+{
 
     /**
      * @param SpanContext|Span $parent
      *
      * @return SpanBuilderInterface
      */
-    function asChildOf($parent): SpanBuilderInterface;
+    public function asChildOf($parent): SpanBuilderInterface;
 
     /**
      * Add a reference from the Span being built to a distinct (usually parent) Span. May be called multiple times
@@ -41,13 +42,13 @@ interface SpanBuilderInterface {
      * @return SpanBuilderInterface
      *
      */
-    function addReference(string $referenceType, SpanContext $referencedContext): SpanBuilderInterface;
+    public function addReference(string $referenceType, SpanContext $referencedContext): SpanBuilderInterface;
 
     /**
      * Do not create an implicit {@link References#CHILD_OF} reference to the {@link ScopeManager#activeSpan()}).
      * @return SpanBuilderInterface
      */
-    function ignoreActiveSpan(): SpanBuilderInterface;
+    public function ignoreActiveSpan(): SpanBuilderInterface;
 
     /**
      * Same as {@link Span#setTag(String, String)}, but for the span being built.
@@ -57,7 +58,7 @@ interface SpanBuilderInterface {
      *
      * @return @return SpanBuilderInterface
      */
-    function withTag(string $key, string $value): SpanBuilderInterface;
+    public function withTag(string $key, string $value): SpanBuilderInterface;
 
 
     /**
@@ -67,7 +68,7 @@ interface SpanBuilderInterface {
      *
      * @return SpanBuilderInterface
      */
-    function withStartTimestamp(int $microseconds): SpanBuilderInterface;
+    public function withStartTimestamp(int $microseconds): SpanBuilderInterface;
 
     /**
      * Returns a newly-started {@link Span}.
@@ -85,9 +86,9 @@ interface SpanBuilderInterface {
      * @return Span the newly-started Span instance, which has *not* been automatically registered
      *         via the {@link ScopeManager}
      */
-    function start(): Span;
+    public function start(): Span;
 
-    function startActive(): Scope;
+    public function startActive(): Scope;
 
-    function finishSpanOnClose(bool $val): SpanBuilderInterface;
+    public function finishSpanOnClose(bool $val): SpanBuilderInterface;
 }

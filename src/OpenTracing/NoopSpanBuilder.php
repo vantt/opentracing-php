@@ -1,10 +1,9 @@
 <?php
 
-
 namespace OpenTracing;
 
-
-class NoopSpanBuilder implements SpanBuilderInterface {
+class NoopSpanBuilder implements SpanBuilderInterface
+{
 
     /**
      * @var Tracer
@@ -15,41 +14,52 @@ class NoopSpanBuilder implements SpanBuilderInterface {
 
     /**
      * NoopSpanBuilder constructor.
+     *
+     * @param string $operationName
+     * @param        $tracer
      */
-    public function __construct(string $operationName, $tracer) {
+    public function __construct(string $operationName, $tracer)
+    {
         $this->tracer        = $tracer;
         $this->operationName = $operationName;
     }
 
-    function asChildOf($parent) {
+    public function asChildOf($parent): SpanBuilderInterface
+    {
         return $this;
     }
 
-    function addReference(string $referenceType, \OpenTracing\SpanContext $referencedContext): SpanBuilderInterface {
+    public function addReference(string $referenceType, SpanContext $referencedContext): SpanBuilderInterface
+    {
         return $this;
     }
 
-    function ignoreActiveSpan(): SpanBuilderInterface {
+    public function ignoreActiveSpan(): SpanBuilderInterface
+    {
         return $this;
     }
 
-    function withTag(string $key, string $value): SpanBuilderInterface {
+    public function withTag(string $key, string $value): SpanBuilderInterface
+    {
         return $this;
     }
 
-    function withStartTimestamp(int $microseconds): SpanBuilderInterface {
+    public function withStartTimestamp(int $microseconds): SpanBuilderInterface
+    {
         return $this;
     }
 
-    function finishSpanOnClose($val): SpanBuilderInterface {
+    public function finishSpanOnClose(bool $val): SpanBuilderInterface
+    {
         return $this;
     }
-    function start(): Span {
+    public function start(): Span
+    {
         return $this->tracer->startSpan($this->operationName, []);
     }
 
-    function startActive(): Scope {
+    public function startActive(): Scope
+    {
         return $this->tracer->startActiveSpan($this->operationName, []);
     }
-
 }

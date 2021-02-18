@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace OpenTracing;
 
@@ -15,7 +15,8 @@ use IteratorAggregate;
  * the local Span. That is, baggage items propagate in-band along with the
  * trace itself.
  */
-interface SpanContext extends IteratorAggregate {
+interface SpanContext extends IteratorAggregate
+{
 
     /**
      * Return the ID of the trace.

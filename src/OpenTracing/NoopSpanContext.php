@@ -35,33 +35,37 @@ final class NoopSpanContext implements SpanContext
     /**
      * {@inheritdoc}
      */
-    public function getTraceId(): string {
+    public function getTraceId(): string
+    {
         return '';
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getSpanId(): string {
+    public function getSpanId(): string
+    {
         return '';
     }
 
     /**
      * @return bool
      */
-    public function isValid() {
+    public function isValid()
+    {
         return true;
     }
 
     /**
      * @return bool
      */
-    public function isTraceIdValid() {
+    public function isTraceIdValid()
+    {
         return true;
     }
 
-    public function getParentId(): ?string {
-        return NULL;
+    public function getParentId(): ?string
+    {
+        return null;
     }
-
 }

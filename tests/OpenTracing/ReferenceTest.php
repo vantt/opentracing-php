@@ -15,7 +15,7 @@ use OpenTracing\InvalidReferenceArgumentException;
  */
 final class ReferenceTest extends TestCase
 {
-    const REFERENCE_TYPE = 'ref_type';
+    private const REFERENCE_TYPE = 'ref_type';
 
     public function testCreateAReferenceFailsOnInvalidContext()
     {

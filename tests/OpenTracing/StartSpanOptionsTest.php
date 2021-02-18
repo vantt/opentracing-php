@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
  */
 final class StartSpanOptionsTest extends TestCase
 {
-    const REFERENCE_TYPE = 'a_reference_type';
+    private const REFERENCE_TYPE = 'a_reference_type';
 
     public function testSpanOptionsCanNotBeCreatedDueToInvalidOption()
     {

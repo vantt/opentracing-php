@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace OpenTracing;
 
@@ -8,7 +8,8 @@ use OpenTracing\UnsupportedFormatException;
 use OpenTracing\InvalidSpanOptionException;
 use OpenTracing\InvalidReferencesSetException;
 
-interface Tracer {
+interface Tracer
+{
     /**
      * Returns the current {@link ScopeManager}, which may be a noop but may not be null.
      *

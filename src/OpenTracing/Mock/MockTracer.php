@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace OpenTracing\Mock;
 
@@ -18,8 +18,10 @@ use OpenTracing\SpanContext;
 use OpenTracing\StartSpanOptions;
 use OpenTracing\Tracer;
 
-final class MockTracer implements Tracer , BuildableInterface{
-use Buildable;
+final class MockTracer implements Tracer, BuildableInterface
+{
+    use Buildable;
+
     /**
      * @var array|MockSpan[]
      */
@@ -40,7 +42,8 @@ use Buildable;
      */
     private $scopeManager;
 
-    public function __construct(array $injectors = [], array $extractors = []) {
+    public function __construct(array $injectors = [], array $extractors = [])
+    {
         $this->injectors    = $injectors;
         $this->extractors   = $extractors;
         $this->scopeManager = new MockScopeManager();
@@ -49,7 +52,8 @@ use Buildable;
     /**
      * {@inheritdoc}
      */
-    public function startActiveSpan(string $operationName, $options = []): Scope {
+    public function startActiveSpan(string $operationName, $options = []): Scope
+    {
         if (!($options instanceof StartSpanOptions)) {
             $options = StartSpanOptions::create($options);
         }
@@ -69,7 +73,8 @@ use Buildable;
     /**
      * {@inheritdoc}
      */
-    public function startSpan(string $operationName, $options = []): Span {
+    public function startSpan(string $operationName, $options = []): Span
+    {
         if (!($options instanceof StartSpanOptions)) {
             $options = StartSpanOptions::create($options);
         }
@@ -79,8 +84,7 @@ use Buildable;
 
         if (null === $parentSpanContext || !$parentSpanContext->isValid()) {
             $spanContext = MockSpanContext::createAsRoot();
-        }
-        else {
+        } else {
             if (!$parentSpanContext instanceof MockSpanContext) {
                 throw InvalidReferenceArgumentException::forInvalidContext($parentSpanContext);
             }
@@ -101,7 +105,8 @@ use Buildable;
     /**
      * {@inheritdoc}
      */
-    public function inject(SpanContext $spanContext, string $format, &$carrier): void {
+    public function inject(SpanContext $spanContext, string $format, &$carrier): void
+    {
         if (!array_key_exists($format, $this->injectors)) {
             throw UnsupportedFormatException::forFormat($format);
         }
@@ -112,7 +117,8 @@ use Buildable;
     /**
      * {@inheritdoc}
      */
-    public function extract(string $format, $carrier): ?SpanContext {
+    public function extract(string $format, $carrier): ?SpanContext
+    {
         if (!array_key_exists($format, $this->extractors)) {
             throw UnsupportedFormatException::forFormat($format);
         }
@@ -123,28 +129,32 @@ use Buildable;
     /**
      * {@inheritdoc}
      */
-    public function flush(): void {
+    public function flush(): void
+    {
         $this->spans = [];
     }
 
     /**
      * @return array|MockSpan[]
      */
-    public function getSpans(): array {
+    public function getSpans(): array
+    {
         return $this->spans;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getScopeManager(): ScopeManager {
+    public function getScopeManager(): ScopeManager
+    {
         return $this->scopeManager;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getActiveSpan(): ?Span {
+    public function getActiveSpan(): ?Span
+    {
         if (null !== ($activeScope = $this->scopeManager->getActive())) {
             return $activeScope->getSpan();
         }
@@ -152,7 +162,8 @@ use Buildable;
         return null;
     }
 
-    private function getParentSpanContext(StartSpanOptions $options): ?SpanContext {
+    private function getParentSpanContext(StartSpanOptions $options): ?SpanContext
+    {
         $references = $options->getReferences();
         $parentSpan = null;
 
@@ -164,7 +175,8 @@ use Buildable;
         }
 
         if ($parentSpan) {
-            if (($parentSpan->isValid()
+            if (
+                ($parentSpan->isValid()
                  || (!$parentSpan->isTraceIdValid() && $parentSpan->debugId)
                  || count($parentSpan->baggage) > 0)
             ) {

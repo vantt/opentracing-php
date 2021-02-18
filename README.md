@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/vantt/opentracing-php.svg?branch=master)](https://travis-ci.org/vantt/opentracing-php?branch=master)
 [![OpenTracing Badge](https://img.shields.io/badge/OpenTracing-enabled-blue.svg)](http://opentracing.io)
-[![Total Downloads](https://poser.pugx.org/opentracing/opentracing/downloads)](https://packagist.org/packages/vantt/opentracing-php)
+[![Total Downloads](https://poser.pugx.org/vantt/opentracing-php/downloads)](https://packagist.org/packages/vantt/opentracing-php)
 [![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%205.6-8892BF.svg)](https://php.net/)
 [![License](https://img.shields.io/github/license/vantt/opentracing-php.svg)](https://github.com/vantt/opentracing-php/blob/master/LICENSE)
 

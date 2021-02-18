@@ -45,8 +45,8 @@
         ]
     },
     "scripts": {
-        "fix-lint": "phpcbf --standard=ZEND --standard=PSR2 --ignore=*/vendor/* ./",
-        "lint": "phpcs --standard=ZEND --standard=PSR2 --ignore=*/vendor/* ./",
+        "fix-lint": "phpcbf --standard=PSR12 --ignore=*/vendor/* ./",
+        "lint": "phpcs --standard=PSR12 --ignore=*/vendor/* ./",
         "test": "phpunit tests",
         "static-check": "phpstan analyse"
     }
