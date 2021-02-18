@@ -11,14 +11,21 @@ cache:
   directories:
     - $HOME/.composer/cache
 
+# Note: Code coverage requires php-xDebug extension enabled on CI server
 install:
-  - composer install
+  - travis_retry composer install --no-interaction --no-suggest
 
-before_script: 
-  - phpenv config-add .travis/php.ini
-  - php -i # displays PHP config
+before_script:
+  - php -i
 
+# Testing the app (see phpunit.xml) for configs, generating Code Coverage report
 script:
   - composer lint
   - composer static-check
-  - composer test
+  - composer test -- --coverage-clover=coverage.xml
+
+#after_script:
+
+after_success:
+  # Submit coverage report to https://codecov.io
+  - bash <(curl -s https://codecov.io/bash)
