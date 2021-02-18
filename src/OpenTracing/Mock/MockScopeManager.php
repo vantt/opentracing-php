@@ -6,7 +6,8 @@ use OpenTracing\Scope;
 use OpenTracing\ScopeManager;
 use OpenTracing\Span;
 
-final class MockScopeManager implements ScopeManager {
+final class MockScopeManager implements ScopeManager
+{
     /**
      * @var array|Scope[]
      */
@@ -15,7 +16,8 @@ final class MockScopeManager implements ScopeManager {
     /**
      * {@inheritdoc}
      */
-    public function activate(Span $span, $finishSpanOnClose = true) {
+    public function activate(Span $span, $finishSpanOnClose = true)
+    {
         $scope          = new MockScope($this, $span, $finishSpanOnClose);
         $this->scopes[] = $scope;
 
@@ -25,7 +27,8 @@ final class MockScopeManager implements ScopeManager {
     /**
      * {@inheritdoc}
      */
-    public function getActive() {
+    public function getActive()
+    {
         if (empty($this->scopes)) {
             return null;
         }
@@ -33,7 +36,8 @@ final class MockScopeManager implements ScopeManager {
         return $this->scopes[count($this->scopes) - 1];
     }
 
-    public function deactivate(MockScope $scope) {
+    public function deactivate(MockScope $scope)
+    {
         $scopeLength = count($this->scopes);
 
         for ($i = 0; $i < $scopeLength; $i++) {

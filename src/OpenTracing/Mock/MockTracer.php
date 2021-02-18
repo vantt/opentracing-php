@@ -12,8 +12,8 @@ use OpenTracing\Tracer;
 use OpenTracing\SpanContext;
 use OpenTracing\Exceptions\InvalidReferenceArgument;
 
-final class MockTracer implements Tracer, BuildableInterface {
-
+final class MockTracer implements Tracer, BuildableInterface
+{
     use Buildable;
 
     /**
@@ -36,7 +36,8 @@ final class MockTracer implements Tracer, BuildableInterface {
      */
     private $scopeManager;
 
-    public function __construct(array $injectors = [], array $extractors = []) {
+    public function __construct(array $injectors = [], array $extractors = [])
+    {
         $this->injectors    = $injectors;
         $this->extractors   = $extractors;
         $this->scopeManager = new MockScopeManager();
@@ -45,7 +46,8 @@ final class MockTracer implements Tracer, BuildableInterface {
     /**
      * {@inheritdoc}
      */
-    public function startActiveSpan($operationName, $options = []) {
+    public function startActiveSpan($operationName, $options = [])
+    {
         if (!($options instanceof StartSpanOptions)) {
             $options = StartSpanOptions::create($options);
         }
@@ -65,7 +67,8 @@ final class MockTracer implements Tracer, BuildableInterface {
     /**
      * {@inheritdoc}
      */
-    public function startSpan($operationName, $options = []) {
+    public function startSpan($operationName, $options = [])
+    {
         if (!($options instanceof StartSpanOptions)) {
             $options = StartSpanOptions::create($options);
         }
@@ -75,8 +78,7 @@ final class MockTracer implements Tracer, BuildableInterface {
 
         if (null === $parentSpanContext || !$parentSpanContext->isValid()) {
             $spanContext = MockSpanContext::createAsRoot();
-        }
-        else {
+        } else {
             if (!$parentSpanContext instanceof MockSpanContext) {
                 throw InvalidReferenceArgument::forInvalidContext($parentSpanContext);
             }
@@ -97,7 +99,8 @@ final class MockTracer implements Tracer, BuildableInterface {
     /**
      * {@inheritdoc}
      */
-    public function inject(SpanContext $spanContext, $format, &$carrier) {
+    public function inject(SpanContext $spanContext, $format, &$carrier)
+    {
         if (!array_key_exists($format, $this->injectors)) {
             throw UnsupportedFormat::forFormat($format);
         }
@@ -108,7 +111,8 @@ final class MockTracer implements Tracer, BuildableInterface {
     /**
      * {@inheritdoc}
      */
-    public function extract($format, $carrier) {
+    public function extract($format, $carrier)
+    {
         if (!array_key_exists($format, $this->extractors)) {
             throw UnsupportedFormat::forFormat($format);
         }
@@ -119,28 +123,32 @@ final class MockTracer implements Tracer, BuildableInterface {
     /**
      * {@inheritdoc}
      */
-    public function flush() {
+    public function flush()
+    {
         $this->spans = [];
     }
 
     /**
      * @return array|MockSpan[]
      */
-    public function getSpans() {
+    public function getSpans()
+    {
         return $this->spans;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getScopeManager() {
+    public function getScopeManager()
+    {
         return $this->scopeManager;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getActiveSpan() {
+    public function getActiveSpan()
+    {
         if (null !== ($activeScope = $this->scopeManager->getActive())) {
             return $activeScope->getSpan();
         }
@@ -148,7 +156,8 @@ final class MockTracer implements Tracer, BuildableInterface {
         return null;
     }
 
-    private function getParentSpanContext($startSpanOptions) {
+    private function getParentSpanContext($startSpanOptions)
+    {
         $references = $startSpanOptions->getReferences();
         $parentSpan = null;
 
@@ -160,7 +169,8 @@ final class MockTracer implements Tracer, BuildableInterface {
         }
 
         if ($parentSpan) {
-            if (($parentSpan->isValid()
+            if (
+                ($parentSpan->isValid()
                  || (!$parentSpan->isTraceIdValid() && $parentSpan->debugId)
                  || count($parentSpan->baggage) > 0)
             ) {

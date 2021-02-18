@@ -2,8 +2,8 @@
 
 namespace OpenTracing;
 
-
-interface BuildableInterface {
+interface BuildableInterface
+{
 
     /**
      * Return a new SpanBuilder for a Span with the given `operationName`.

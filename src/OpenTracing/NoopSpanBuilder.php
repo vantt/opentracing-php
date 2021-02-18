@@ -1,10 +1,9 @@
 <?php
 
-
 namespace OpenTracing;
 
-
-class NoopSpanBuilder implements SpanBuilderInterface {
+class NoopSpanBuilder implements SpanBuilderInterface
+{
 
     /**
      * @var Tracer
@@ -16,39 +15,48 @@ class NoopSpanBuilder implements SpanBuilderInterface {
     /**
      * NoopSpanBuilder constructor.
      */
-    public function __construct(string $operationName, $tracer) {
+    public function __construct(string $operationName, $tracer)
+    {
         $this->tracer        = $tracer;
         $this->operationName = $operationName;
     }
 
-    function asChildOf($parent) {
+    public function asChildOf($parent)
+    {
         return $this;
     }
 
-    function addReference($referenceType, $referencedContext) {
+    public function addReference($referenceType, $referencedContext)
+    {
         return $this;
     }
 
-    function ignoreActiveSpan() {
+    public function ignoreActiveSpan()
+    {
         return $this;
     }
 
-    function withTag($key, $value) {
+    public function withTag($key, $value)
+    {
         return $this;
     }
 
-    function withStartTimestamp($microseconds) {
+    public function withStartTimestamp($microseconds)
+    {
         return $this;
     }
 
-    function finishSpanOnClose($val) {
+    public function finishSpanOnClose($val)
+    {
     }
 
-    function start() {
+    public function start()
+    {
         return $this->tracer->startSpan($this->operationName, []);
     }
 
-    function startActive() {
+    public function startActive()
+    {
         return $this->tracer->startActiveSpan($this->operationName, []);
     }
 }

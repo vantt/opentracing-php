@@ -1,5 +1,9 @@
 <?php
 
+/**
+ *
+ */
+
 namespace OpenTracing\Formats;
 
 /**
@@ -7,6 +11,7 @@ namespace OpenTracing\Formats;
  *
  * For both Tracer::inject() and Tracer::extract() the carrier must be a `string`.
  */
+
 const BINARY = 'binary';
 
 /**

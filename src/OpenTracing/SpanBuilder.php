@@ -8,7 +8,8 @@ use OpenTracing\SpanContext;
 use OpenTracing\Span;
 use OpenTracing\Tracer;
 
-class SpanBuilder implements SpanBuilderInterface {
+class SpanBuilder implements SpanBuilderInterface
+{
 
     private $operationName;
 
@@ -25,34 +26,38 @@ class SpanBuilder implements SpanBuilderInterface {
       'references'           => [],
     ];
 
-    public function __construct($operationName, $tracer) {
+    public function __construct($operationName, $tracer)
+    {
         $this->operationName = $operationName;
         $this->tracer        = $tracer;
     }
 
 
-    public function asChildOf($parent) {
+    public function asChildOf($parent)
+    {
         if ($parent instanceof SpanContext) {
             $this->starOptions['child_of'] = $parent;
-        }
-        elseif ($parent instanceof Span) {
+        } elseif ($parent instanceof Span) {
             $this->starOptions['child_of'] = $parent->getContext();
         }
 
         return $this;
     }
 
-    function finishSpanOnClose($val) {
+    public function finishSpanOnClose($val)
+    {
         $this->starOptions['finish_span_on_close'] = $val;
     }
 
-    public function withTag($key, $value) {
+    public function withTag($key, $value)
+    {
         $this->starOptions['tags'][$key] = $value;
 
         return $this;
     }
 
-    public function addReference($referenceType, $referencedContext) {
+    public function addReference($referenceType, $referencedContext)
+    {
         if ($referencedContext != null) {
             $this->starOptions['references'][] = Reference::create($referenceType, $referencedContext);
         }
@@ -60,34 +65,38 @@ class SpanBuilder implements SpanBuilderInterface {
         return $this;
     }
 
-    public function ignoreActiveSpan() {
+    public function ignoreActiveSpan()
+    {
         $this->ignoringActiveSpan = true;
 
         return $this;
     }
 
-    public function withStartTimestamp($microseconds) {
+    public function withStartTimestamp($microseconds)
+    {
         $this->starOptions['start_time'] = $microseconds;
 
         return $this;
     }
 
-    public function start() {
+    public function start()
+    {
         $this->verifyActiveSpan();
 
         return $this->tracer->startSpan($this->operationName, $this->starOptions);
     }
 
-    public function startActive() {
+    public function startActive()
+    {
         $this->verifyActiveSpan();
 
         return $this->tracer->startActiveSpan($this->operationName, $this->starOptions);
     }
 
-    private function verifyActiveSpan() {
+    private function verifyActiveSpan()
+    {
         if (empty($this->starOptions['child_of']) && !$this->ignoringActiveSpan) {
             $this->asChildOf($this->tracer->getActiveSpan());
         }
     }
-
 }

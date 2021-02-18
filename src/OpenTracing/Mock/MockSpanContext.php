@@ -5,7 +5,8 @@ namespace OpenTracing\Mock;
 use ArrayIterator;
 use OpenTracing\SpanContext;
 
-final class MockSpanContext implements SpanContext {
+final class MockSpanContext implements SpanContext
+{
     /**
      * @var string
      */
@@ -31,7 +32,8 @@ final class MockSpanContext implements SpanContext {
      */
     private $items;
 
-    private function __construct($traceId, $spanId, $isSampled, array $items) {
+    private function __construct($traceId, $spanId, $isSampled, array $items)
+    {
         $this->traceId   = $traceId;
         $this->spanId    = $spanId;
         $this->isSampled = $isSampled;
@@ -41,7 +43,8 @@ final class MockSpanContext implements SpanContext {
     /**
      *
      */
-    public function setParentId($parentId) {
+    public function setParentId($parentId)
+    {
         $this->parentId = $parentId;
     }
 
@@ -50,21 +53,25 @@ final class MockSpanContext implements SpanContext {
      *
      * @return string
      */
-    public function getParentId() {
+    public function getParentId()
+    {
         return $this->parentId;
     }
 
-    public static function create($traceId, $spanId, $sampled = true, array $items = []) {
+    public static function create($traceId, $spanId, $sampled = true, array $items = [])
+    {
         return new self($traceId, $spanId, $sampled, $items);
     }
 
-    public static function createAsRoot($sampled = true, array $items = []) {
+    public static function createAsRoot($sampled = true, array $items = [])
+    {
         $traceId = $spanId = self::nextId();
 
         return new self($traceId, $spanId, $sampled, $items);
     }
 
-    public static function createAsChildOf(MockSpanContext $spanContext) {
+    public static function createAsChildOf(MockSpanContext $spanContext)
+    {
         $spanId  = self::nextId();
         $context = new self($spanContext->getTraceId(), $spanId, $spanContext->isSampled, $spanContext->items);
         $context->setParentId($spanContext->getSpanId());
@@ -72,47 +79,55 @@ final class MockSpanContext implements SpanContext {
         return $context;
     }
 
-    public function getTraceId() {
+    public function getTraceId()
+    {
         return $this->traceId;
     }
 
-    public function getSpanId() {
+    public function getSpanId()
+    {
         return $this->spanId;
     }
 
-    public function isSampled() {
+    public function isSampled()
+    {
         return $this->isSampled;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getIterator() {
+    public function getIterator()
+    {
         return new ArrayIterator($this->items);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getBaggageItem($key) {
+    public function getBaggageItem($key)
+    {
         return array_key_exists($key, $this->items) ? $this->items[$key] : null;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function withBaggageItem($key, $value) {
+    public function withBaggageItem($key, $value)
+    {
         return new self($this->traceId, $this->spanId, $this->isSampled, array_merge($this->items, [$key => $value]));
     }
 
-    private static function nextId() {
+    private static function nextId()
+    {
         return mt_rand(0, 99999);
     }
 
     /**
      * @return bool
      */
-    public function isValid() {
+    public function isValid()
+    {
         return $this->isTraceIdValid() && !empty($this->spanId);
     }
 
@@ -120,7 +135,8 @@ final class MockSpanContext implements SpanContext {
     /**
      * @return bool
      */
-    public function isTraceIdValid() {
+    public function isTraceIdValid()
+    {
         return !empty($this->traceId);
     }
 }

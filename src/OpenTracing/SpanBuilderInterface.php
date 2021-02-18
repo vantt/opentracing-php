@@ -6,7 +6,8 @@ use OpenTracing\Scope;
 use OpenTracing\Span;
 use OpenTracing\SpanContext;
 
-interface SpanBuilderInterface {
+interface SpanBuilderInterface
+{
 
     /**
      * @param SpanContext|Span $parent
@@ -41,13 +42,13 @@ interface SpanBuilderInterface {
      * @return SpanBuilderInterface
      *
      */
-    function addReference($referenceType, $referencedContext);
+    public function addReference($referenceType, $referencedContext);
 
     /**
      * Do not create an implicit {@link References#CHILD_OF} reference to the {@link ScopeManager#activeSpan()}).
      * @return SpanBuilderInterface
      */
-    function ignoreActiveSpan();
+    public function ignoreActiveSpan();
 
     /**
      * Same as {@link Span#setTag(String, String)}, but for the span being built.
@@ -57,7 +58,7 @@ interface SpanBuilderInterface {
      *
      * @return @return SpanBuilderInterface
      */
-    function withTag($key, $value);
+    public function withTag($key, $value);
 
     /**
      * Specify a timestamp of when the Span was started, represented in microseconds since epoch.
@@ -66,7 +67,7 @@ interface SpanBuilderInterface {
      *
      * @return SpanBuilderInterface
      */
-    function withStartTimestamp($microseconds);
+    public function withStartTimestamp($microseconds);
 
     /**
      * Returns a newly-started {@link Span}.
@@ -85,14 +86,14 @@ interface SpanBuilderInterface {
      *         via the {@link ScopeManager}
      *
      */
-    function start();
+    public function start();
 
-    function startActive();
+    public function startActive();
 
     /**
      * @param bool $val
      *
      * @return mixed
      */
-    function finishSpanOnClose($val);
+    public function finishSpanOnClose($val);
 }

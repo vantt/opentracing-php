@@ -5,7 +5,8 @@ namespace OpenTracing\Mock;
 use OpenTracing\Scope;
 use OpenTracing\Span;
 
-final class MockScope implements Scope {
+final class MockScope implements Scope
+{
     /**
      * @var Span
      */
@@ -27,9 +28,9 @@ final class MockScope implements Scope {
      * @param bool             $finishSpanOnClose
      */
     public function __construct(
-      MockScopeManager $scopeManager,
-      Span $span,
-      $finishSpanOnClose
+        MockScopeManager $scopeManager,
+        Span $span,
+        $finishSpanOnClose
     ) {
         $this->scopeManager      = $scopeManager;
         $this->span              = $span;
@@ -39,7 +40,8 @@ final class MockScope implements Scope {
     /**
      * {@inheritdoc}
      */
-    public function close() {
+    public function close()
+    {
         if ($this->finishSpanOnClose) {
             $this->span->finish();
         }
@@ -51,7 +53,8 @@ final class MockScope implements Scope {
      * {@inheritdoc}
      * @return Span|MockSpan
      */
-    public function getSpan() {
+    public function getSpan()
+    {
         return $this->span;
     }
 }

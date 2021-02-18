@@ -13,7 +13,6 @@ before_script:
 
 # Testing the app (see phpunit.xml) for configs, generating Code Coverage report
 script:
-  - composer lint
   - composer test -- --coverage-clover=coverage.xml
 
 #after_script:

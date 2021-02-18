@@ -2,8 +2,8 @@
 
 namespace OpenTracing;
 
-
-trait Buildable {
+trait Buildable
+{
 
     /**
      * Return a new SpanBuilder for a Span with the given `operationName`.
@@ -35,7 +35,8 @@ trait Buildable {
      *
      * @return SpanBuilderInterface
      */
-    public function buildSpan($operationName) {
+    public function buildSpan($operationName)
+    {
         return new SpanBuilder($operationName, $this);
     }
 }

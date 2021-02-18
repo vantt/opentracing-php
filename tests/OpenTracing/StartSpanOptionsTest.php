@@ -11,47 +11,49 @@ use PHPUnit_Framework_TestCase;
 /**
  * @covers StartSpanOptions
  */
-final class StartSpanOptionsTest extends PHPUnit_Framework_TestCase {
+final class StartSpanOptionsTest extends PHPUnit_Framework_TestCase
+{
     const REFERENCE_TYPE = 'a_reference_type';
 
-    public function testSpanOptionsCanNotBeCreatedDueToInvalidOption() {
+    public function testSpanOptionsCanNotBeCreatedDueToInvalidOption()
+    {
         $this->expectException(InvalidSpanOption::class);
 
         StartSpanOptions::create([
                                    'unknown_option' => 'value',
-                                 ]
-        );
+                                 ]);
     }
 
-    public function testSpanOptionsWithInvalidCloseOnFinishOption() {
+    public function testSpanOptionsWithInvalidCloseOnFinishOption()
+    {
         $this->expectException(InvalidSpanOption::class);
 
         StartSpanOptions::create([
                                    'finish_span_on_close' => 'value',
-                                 ]
-        );
+                                 ]);
     }
 
-    public function testSpanOptionsCanNotBeCreatedBecauseInvalidStartTime() {
+    public function testSpanOptionsCanNotBeCreatedBecauseInvalidStartTime()
+    {
         $this->expectException(InvalidSpanOption::class);
 
         StartSpanOptions::create([
                                    'start_time' => 'abc',
-                                 ]
-        );
+                                 ]);
     }
 
     /** @dataProvider validStartTime */
-    public function testSpanOptionsCanBeCreatedBecauseWithValidStartTime($startTime) {
+    public function testSpanOptionsCanBeCreatedBecauseWithValidStartTime($startTime)
+    {
         $spanOptions = StartSpanOptions::create([
                                                   'start_time' => $startTime,
-                                                ]
-        );
+                                                ]);
 
         $this->assertEquals($spanOptions->getStartTime(), $startTime);
     }
 
-    public function validStartTime() {
+    public function validStartTime()
+    {
         return [
           [new \DateTime()],
           ['1499355363'],
@@ -60,7 +62,8 @@ final class StartSpanOptionsTest extends PHPUnit_Framework_TestCase {
         ];
     }
 
-    public function testSpanOptionsCanBeCreatedWithValidReference() {
+    public function testSpanOptionsCanBeCreatedWithValidReference()
+    {
         $context = NoopSpanContext::create();
 
         $options = [
@@ -74,27 +77,28 @@ final class StartSpanOptionsTest extends PHPUnit_Framework_TestCase {
         $this->assertSame($context, $references->getContext());
     }
 
-    public function testSpanOptionsDefaultCloseOnFinishValue() {
+    public function testSpanOptionsDefaultCloseOnFinishValue()
+    {
         $options = StartSpanOptions::create([]);
 
         $this->assertTrue($options->shouldFinishSpanOnClose());
     }
 
-    public function testSpanOptionsWithValidFinishSpanOnClose() {
+    public function testSpanOptionsWithValidFinishSpanOnClose()
+    {
         $options = StartSpanOptions::create([
                                               'finish_span_on_close' => false,
-                                            ]
-        );
+                                            ]);
 
         $this->assertFalse($options->shouldFinishSpanOnClose());
     }
 
-    public function testSpanOptionsAddsANewReference() {
+    public function testSpanOptionsAddsANewReference()
+    {
         $context1    = NoopSpanContext::create();
         $spanOptions = StartSpanOptions::create([
                                                   'child_of' => $context1,
-                                                ]
-        );
+                                                ]);
         $this->assertCount(1, $spanOptions->getReferences());
 
         $context2    = NoopSpanContext::create();
