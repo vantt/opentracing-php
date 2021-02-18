@@ -29,7 +29,7 @@ class NoopSpanBuilder implements SpanBuilderInterface
         return $this;
     }
 
-    public function addReference(string $referenceType, SpanContext $referencedContext): SpanBuilderInterface
+    public function addReference(string $referenceType, $referencedContext): SpanBuilderInterface
     {
         return $this;
     }

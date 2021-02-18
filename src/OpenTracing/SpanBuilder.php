@@ -57,11 +57,15 @@ class SpanBuilder implements SpanBuilderInterface
         return $this;
     }
 
-    public function addReference(string $referenceType, SpanContext $referencedContext): SpanBuilderInterface
+    public function addReference(string $referenceType, $referencedContext): SpanBuilderInterface
     {
-        if ($referencedContext != null) {
+        if ($referencedContext instanceof SpanContext) {
+            $this->starOptions['references'][] = new Reference($referenceType, $referencedContext);
+        }
+        elseif ($referencedContext instanceof Span) {
             $this->starOptions['references'][] = Reference::createForSpan($referenceType, $referencedContext);
         }
+
         return $this;
     }
 

@@ -37,12 +37,12 @@ interface SpanBuilderInterface
      *                          {@link #addReference} is a noop.
      *
      * @param string      $referenceType
-     * @param SpanContext $referencedContext
+     * @param SpanContext|Span $referencedContext
      *
      * @return SpanBuilderInterface
      *
      */
-    public function addReference(string $referenceType, SpanContext $referencedContext): SpanBuilderInterface;
+    public function addReference(string $referenceType, $referencedContext): SpanBuilderInterface;
 
     /**
      * Do not create an implicit {@link References#CHILD_OF} reference to the {@link ScopeManager#activeSpan()}).
