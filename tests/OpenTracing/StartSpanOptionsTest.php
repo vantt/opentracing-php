@@ -11,9 +11,7 @@ use OpenTracing\Reference;
 use OpenTracing\StartSpanOptions;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers StartSpanOptions
- */
+
 final class StartSpanOptionsTest extends TestCase
 {
     private const REFERENCE_TYPE = 'a_reference_type';

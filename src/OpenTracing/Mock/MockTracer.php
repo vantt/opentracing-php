@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace OpenTracing\Mock;
 
@@ -58,11 +58,8 @@ final class MockTracer implements Tracer, BuildableInterface
             $options = StartSpanOptions::create($options);
         }
 
-        $parentSpan = $this->getParentSpanContext($options);
-        if ($parentSpan === null) {
-            if ($parentSpan = $this->getActiveSpan()) {
-                $options = $options->withParent($parentSpan->getContext());
-            }
+        if ($parentSpanContext = $this->getParentSpanContext($options)) {
+            $options = $options->withParent($parentSpanContext->getContext());
         }
 
         $span = $this->startSpan($operationName, $options);
@@ -164,23 +161,29 @@ final class MockTracer implements Tracer, BuildableInterface
 
     private function getParentSpanContext(StartSpanOptions $options): ?SpanContext
     {
-        $references = $options->getReferences();
-        $parentSpan = null;
+        $references        = $options->getReferences();
+        $parentSpanContext = null;
 
         foreach ($references as $ref) {
-            $parentSpan = $ref->getSpanContext();
+            $parentSpanContext = $ref->getSpanContext();
             if ($ref->isType(Reference::CHILD_OF)) {
-                return $parentSpan;
+                return $parentSpanContext;
             }
         }
 
-        if ($parentSpan) {
+        if (!$parentSpanContext && !$options->shouldIgnoreActiveSpan()) {
+            if ($activeSpan = $this->getActiveSpan()) {
+                $parentSpanContext = $activeSpan->getContext();
+            }
+        }
+
+        if ($parentSpanContext) {
             if (
-                ($parentSpan->isValid()
-                 || (!$parentSpan->isTraceIdValid() && $parentSpan->debugId)
-                 || count($parentSpan->baggage) > 0)
+            ($parentSpanContext->isValid()
+             || (!$parentSpanContext->isTraceIdValid() && $parentSpanContext->debugId)
+             || count($parentSpanContext->baggage) > 0)
             ) {
-                return $parentSpan;
+                return $parentSpanContext;
             }
         }
 

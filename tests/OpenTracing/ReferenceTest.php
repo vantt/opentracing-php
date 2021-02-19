@@ -10,9 +10,6 @@ use OpenTracing\Reference;
 use OpenTracing\NoopSpanContext;
 use OpenTracing\InvalidReferenceArgumentException;
 
-/**
- * @covers Reference
- */
 final class ReferenceTest extends TestCase
 {
     private const REFERENCE_TYPE = 'ref_type';

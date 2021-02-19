@@ -70,6 +70,10 @@ interface SpanBuilderInterface
      */
     public function withStartTimestamp(int $microseconds): SpanBuilderInterface;
 
+    public function finishSpanOnClose(bool $val): SpanBuilderInterface;
+
+    public function getStartOptions(): StartSpanOptions ;
+
     /**
      * Returns a newly-started {@link Span}.
      *
@@ -89,6 +93,4 @@ interface SpanBuilderInterface
     public function start(): Span;
 
     public function startActive(): Scope;
-
-    public function finishSpanOnClose(bool $val): SpanBuilderInterface;
 }

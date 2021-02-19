@@ -2,11 +2,7 @@
 
 namespace OpenTracing;
 
-use OpenTracing\Reference;
-use OpenTracing\Scope;
-use OpenTracing\SpanContext;
-use OpenTracing\Span;
-use OpenTracing\Tracer;
+use BadMethodCallException;
 
 class SpanBuilder implements SpanBuilderInterface
 {
@@ -17,11 +13,11 @@ class SpanBuilder implements SpanBuilderInterface
      * @var Tracer
      */
     private $tracer             = null;
-    private $ignoringActiveSpan = false;
 
-    private $starOptions = [
+    private $startOptions = [
       'start_time'           => null,
       'finish_span_on_close' => true,
+      'ignore_active_span'   => false,
       'tags'                 => [],
       'references'           => [],
     ];
@@ -36,9 +32,9 @@ class SpanBuilder implements SpanBuilderInterface
     public function asChildOf($parent): SpanBuilderInterface
     {
         if ($parent instanceof SpanContext) {
-            $this->starOptions['child_of'] = $parent;
+            $this->startOptions['child_of'] = $parent;
         } elseif ($parent instanceof Span) {
-            $this->starOptions['child_of'] = $parent->getContext();
+            $this->startOptions['child_of'] = $parent->getContext();
         }
 
         return $this;
@@ -46,24 +42,30 @@ class SpanBuilder implements SpanBuilderInterface
 
     public function finishSpanOnClose(bool $val): SpanBuilderInterface
     {
-        $this->starOptions['finish_span_on_close'] = $val;
+        $this->startOptions['finish_span_on_close'] = $val;
+
         return $this;
     }
 
     public function withTag(string $key, string $value): SpanBuilderInterface
     {
-        $this->starOptions['tags'][$key] = $value;
+        $this->startOptions['tags'][$key] = $value;
 
         return $this;
     }
 
     public function addReference(string $referenceType, $referencedContext): SpanBuilderInterface
     {
+        $reference = null;
+
         if ($referencedContext instanceof SpanContext) {
-            $this->starOptions['references'][] = new Reference($referenceType, $referencedContext);
+            $reference = new Reference($referenceType, $referencedContext);
+        } elseif ($referencedContext instanceof Span) {
+            $reference = Reference::createForSpan($referenceType, $referencedContext);
         }
-        elseif ($referencedContext instanceof Span) {
-            $this->starOptions['references'][] = Reference::createForSpan($referenceType, $referencedContext);
+
+        if ($reference) {
+            $this->startOptions['references'][] = $reference;
         }
 
         return $this;
@@ -71,34 +73,50 @@ class SpanBuilder implements SpanBuilderInterface
 
     public function ignoreActiveSpan(): SpanBuilderInterface
     {
-        $this->ignoringActiveSpan = true;
+        if (!empty($this->startOptions['child_of']) || !empty($this->startOptions['references'])) {
+            throw new BadMethodCallException(
+              'Usage of ignoreActiveSpan() after calling asChildOf() or addReference() is useless.'
+            );
+        }
+
+        $this->startOptions['ignore_active_span'] = true;
 
         return $this;
     }
 
     public function withStartTimestamp(int $microseconds): SpanBuilderInterface
     {
-        $this->starOptions['start_time'] = $microseconds;
+        $this->startOptions['start_time'] = $microseconds;
 
         return $this;
     }
 
     public function start(): Span
     {
-        $this->verifyActiveSpan();
-        return $this->tracer->startSpan($this->operationName, $this->starOptions);
+        //$this->setActiveSpan();
+
+        return $this->tracer->startSpan($this->operationName, $this->getStartOptions());
     }
 
     public function startActive(): Scope
     {
-        $this->verifyActiveSpan();
-        return $this->tracer->startActiveSpan($this->operationName, $this->starOptions);
+        //$this->setActiveSpan();
+
+        return $this->tracer->startActiveSpan($this->operationName, $this->getStartOptions());
     }
 
-    private function verifyActiveSpan()
-    {
-        if (empty($this->starOptions['child_of']) && !$this->ignoringActiveSpan) {
-            $this->asChildOf($this->tracer->getActiveSpan());
-        }
+    public function getStartOptions(): StartSpanOptions {
+        return StartSpanOptions::create($this->startOptions);
     }
+
+//    private function setActiveSpan()
+//    {
+//        if ($this->startOptions['ignore_active_span']) {
+//            return;
+//        }
+//
+//        if (empty($this->startOptions['child_of']) && empty($this->startOptions['references'])) {
+//            $this->asChildOf($this->tracer->getActiveSpan());
+//        }
+//    }
 }

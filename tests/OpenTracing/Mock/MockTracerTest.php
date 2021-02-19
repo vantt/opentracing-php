@@ -13,9 +13,6 @@ use OpenTracing\Span;
 use OpenTracing\SpanContext;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers MockTracer
- */
 final class MockTracerTest extends TestCase
 {
     private const OPERATION_NAME = 'test_name';

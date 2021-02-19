@@ -8,9 +8,6 @@ use OpenTracing\Mock\MockSpan;
 use OpenTracing\Mock\MockSpanContext;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers MockSpan
- */
 final class MockSpanTest extends TestCase
 {
     private const OPERATION_NAME = 'test';
